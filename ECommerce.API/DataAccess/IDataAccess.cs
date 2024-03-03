@@ -14,6 +14,7 @@ namespace ECommerce.API.DataAccess
         void InsertReview(Review review);
         List<Review> GetProductReviews(int productId);
         User GetUser(int id);
+        User GetUserByUserName(string uname);
         bool InsertCartItem(int userId, int productId);
         Cart GetActiveCartOfUser(int userid);
         Cart GetCart(int cartid);

@@ -472,9 +472,39 @@ namespace ECommerce.API.DataAccess
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
+                    user.UserName = (string)reader["UserName"];
+                    user.Name = (string)reader["Name"];
                     user.Id = (int)reader["UserId"];
-                    user.FirstName = (string)reader["FirstName"];
-                    user.LastName = (string)reader["LastName"];
+                    user.Email = (string)reader["Email"];
+                    user.Address = (string)reader["Address"];
+                    user.Mobile = (string)reader["Mobile"];
+                    user.Password = (string)reader["Password"];
+                    user.CreatedAt = (string)reader["CreatedAt"];
+                    user.ModifiedAt = (string)reader["ModifiedAt"];
+                }
+            }
+            return user;
+        }
+        public User GetUserByUserName(string uname)
+        {
+            var user = new User();
+            using (SqlConnection connection = new(dbconnection))
+            {
+                SqlCommand command = new()
+                {
+                    Connection = connection
+                };
+
+                string query = "SELECT * FROM Users WHERE UserName=" + uname + ";";
+                command.CommandText = query;
+
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    user.UserName = (string)reader["UserName"];
+                    user.Name = (string)reader["Name"];
+                    user.Id = (int)reader["UserId"];
                     user.Email = (string)reader["Email"];
                     user.Address = (string)reader["Address"];
                     user.Mobile = (string)reader["Mobile"];
@@ -636,11 +666,11 @@ namespace ECommerce.API.DataAccess
                     return false;
                 }
 
-                query = "INSERT INTO Users (FirstName, LastName, Address, Mobile, Email, Password, CreatedAt, ModifiedAt) values (@fn, @ln, @add, @mb, @em, @pwd, @cat, @mat);";
+                query = "INSERT INTO Users (UserName, Name, Address, Mobile, Email, Password, CreatedAt, ModifiedAt) values (@uname, @name, @add, @mb, @em, @pwd, @cat, @mat);";
 
                 command.CommandText = query;
-                command.Parameters.Add("@fn", System.Data.SqlDbType.NVarChar).Value = user.FirstName;
-                command.Parameters.Add("@ln", System.Data.SqlDbType.NVarChar).Value = user.LastName;
+                command.Parameters.Add("@uname", System.Data.SqlDbType.NVarChar).Value = user.UserName;
+                command.Parameters.Add("@name", System.Data.SqlDbType.NVarChar).Value = user.Name;
                 command.Parameters.Add("@add", System.Data.SqlDbType.NVarChar).Value = user.Address;
                 command.Parameters.Add("@mb", System.Data.SqlDbType.NVarChar).Value = user.Mobile;
                 command.Parameters.Add("@em", System.Data.SqlDbType.NVarChar).Value = user.Email;
@@ -679,9 +709,9 @@ namespace ECommerce.API.DataAccess
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
+                    user.Name = (string)reader["Name"];
+                    user.UserName = (string)reader["UserName"];
                     user.Id = (int)reader["UserId"];
-                    user.FirstName = (string)reader["FirstName"];
-                    user.LastName = (string)reader["LastName"];
                     user.Email = (string)reader["Email"];
                     user.Address = (string)reader["Address"];
                     user.Mobile = (string)reader["Mobile"];
@@ -697,9 +727,9 @@ namespace ECommerce.API.DataAccess
 
                 var claims = new[]
                 {
+                    new Claim("uname", user.UserName.ToString()),
+                    new Claim("name", user.Name.ToString()),
                     new Claim("id", user.Id.ToString()),
-                    new Claim("firstName", user.FirstName),
-                    new Claim("lastName", user.LastName),
                     new Claim("address", user.Address),
                     new Claim("mobile", user.Mobile),
                     new Claim("email", user.Email),
@@ -716,7 +746,6 @@ namespace ECommerce.API.DataAccess
 
                 return new JwtSecurityTokenHandler().WriteToken(jwtToken);
             }
-            return "";
         }
     }
 }
