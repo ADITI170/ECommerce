@@ -23,6 +23,7 @@ namespace ECommerce.API.DataAccess
         int InsertPayment(Payment payment);
         int InsertOrder(Order order);
         bool DeleteCartItem(int userId, int productId);
+        bool DeletePreviousCart(int userId, int cartId);
 
         List<Product> SearchProducts(string query);
 

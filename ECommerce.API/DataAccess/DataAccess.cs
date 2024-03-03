@@ -52,6 +52,29 @@ namespace ECommerce.API.DataAccess
             }
         }
 
+        public bool DeletePreviousCart(int userId, int cartId)
+        {
+            using (SqlConnection connection = new SqlConnection(dbconnection))
+            {
+                SqlCommand command = new SqlCommand()
+                {
+                    Connection = connection
+                };
+
+                connection.Open();
+                command.Parameters.AddWithValue("@userId", userId);
+                command.Parameters.AddWithValue("@cartId", cartId);
+                string delete_from_orders = "DELETE FROM Orders WHERE CartId=@cartId and UserId=@userId;";
+                string delete_from_carts = "DELETE FROM Carts WHERE CartId=@cartId and UserId=@userId;";
+                command.CommandText = delete_from_orders;
+                command.ExecuteScalar();
+                command.CommandText = delete_from_carts;
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected > 0;
+
+            }
+        }
+
         public Cart GetActiveCartOfUser(int userid)
         {
             var cart = new Cart();

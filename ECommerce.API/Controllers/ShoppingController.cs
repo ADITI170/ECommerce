@@ -103,6 +103,21 @@ namespace ECommerce.API.Controllers
                 return NotFound();
             }
         }
+
+        [HttpDelete("DeletePreviousCart/{userId}/{cartId}")]
+        public IActionResult DeletePreviousCart(int userId, int cartId)
+        {
+            var result = dataAccess.DeletePreviousCart(userId, cartId);
+            if (result)
+            {
+                return Ok("{\"message\": \"Cart deleted\"}");
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
         [HttpGet("GetAllPreviousCartsOfUser/{id}")]
         public IActionResult GetAllPreviousCartsOfUser(int id)
         {
