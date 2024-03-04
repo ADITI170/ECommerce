@@ -504,6 +504,7 @@ namespace ECommerce.API.DataAccess
                     user.Password = (string)reader["Password"];
                     user.CreatedAt = (string)reader["CreatedAt"];
                     user.ModifiedAt = (string)reader["ModifiedAt"];
+                    user.Roles = (string)reader["Role"];
                 }
             }
             return user;
@@ -534,6 +535,7 @@ namespace ECommerce.API.DataAccess
                     user.Password = (string)reader["Password"];
                     user.CreatedAt = (string)reader["CreatedAt"];
                     user.ModifiedAt = (string)reader["ModifiedAt"];
+                    user.Roles = (string)reader["Role"];
                 }
             }
             return user;
@@ -672,16 +674,18 @@ namespace ECommerce.API.DataAccess
 
         public bool InsertUser(User user)
         {
-            using (SqlConnection connection = new(dbconnection))
+            using (SqlConnection connection = new SqlConnection(dbconnection))
             {
-                SqlCommand command = new()
+                SqlCommand command = new SqlCommand()
                 {
                     Connection = connection
                 };
                 connection.Open();
-
+                Console.WriteLine("db_in-data");
                 string query = "SELECT COUNT(*) FROM Users WHERE Email='" + user.Email + "';";
+                Console.WriteLine("db_on-data");
                 command.CommandText = query;
+               // command.Parameters.AddWithValue("@em", user.Email);
                 int count = (int)command.ExecuteScalar();
                 if (count > 0)
                 {
@@ -689,23 +693,25 @@ namespace ECommerce.API.DataAccess
                     return false;
                 }
 
-                query = "INSERT INTO Users (UserName, Name, Address, Mobile, Email, Password, CreatedAt, ModifiedAt) values (@uname, @name, @add, @mb, @em, @pwd, @cat, @mat);";
+                query = "INSERT INTO Users (UserName, Name, Address, Mobile, Email, Password, CreatedAt, ModifiedAt, Role) " +
+                        "VALUES (@uname, @name, @add, @mb, @em, @pwd, @cat, @mat, @role);";
 
                 command.CommandText = query;
-                command.Parameters.Add("@uname", System.Data.SqlDbType.NVarChar).Value = user.UserName;
-                command.Parameters.Add("@name", System.Data.SqlDbType.NVarChar).Value = user.Name;
-                command.Parameters.Add("@add", System.Data.SqlDbType.NVarChar).Value = user.Address;
-                command.Parameters.Add("@mb", System.Data.SqlDbType.NVarChar).Value = user.Mobile;
-                command.Parameters.Add("@em", System.Data.SqlDbType.NVarChar).Value = user.Email;
-                command.Parameters.Add("@pwd", System.Data.SqlDbType.NVarChar).Value = user.Password;
-                command.Parameters.Add("@cat", System.Data.SqlDbType.NVarChar).Value = user.CreatedAt;
-                command.Parameters.Add("@mat", System.Data.SqlDbType.NVarChar).Value = user.ModifiedAt;
+                command.Parameters.AddWithValue("@uname", user.UserName);
+                command.Parameters.AddWithValue("@name", user.Name);
+                command.Parameters.AddWithValue("@add", user.Address);
+                command.Parameters.AddWithValue("@mb", user.Mobile);
+                command.Parameters.AddWithValue("@em", user.Email);
+                command.Parameters.AddWithValue("@pwd", user.Password);
+                command.Parameters.AddWithValue("@cat", user.CreatedAt);
+                command.Parameters.AddWithValue("@mat", user.ModifiedAt);
+                command.Parameters.AddWithValue("@role", user.Roles);
 
                 command.ExecuteNonQuery();
+                Console.WriteLine("db_got-data");
             }
             return true;
         }
-
         public string IsUserPresent(string email, string password)
         {
             User user = new();
@@ -741,6 +747,7 @@ namespace ECommerce.API.DataAccess
                     user.Password = (string)reader["Password"];
                     user.CreatedAt = (string)reader["CreatedAt"];
                     user.ModifiedAt = (string)reader["ModifiedAt"];
+                    user.Roles = (string)reader["Role"];
                 }
 
                 string key = "MNU66iBl3T5rh6H52i69";
@@ -757,7 +764,9 @@ namespace ECommerce.API.DataAccess
                     new Claim("mobile", user.Mobile),
                     new Claim("email", user.Email),
                     new Claim("createdAt", user.CreatedAt),
-                    new Claim("modifiedAt", user.ModifiedAt)
+                    new Claim("modifiedAt", user.ModifiedAt),
+                    new Claim("role", user.Roles)
+
                 };
 
                 var jwtToken = new JwtSecurityToken(

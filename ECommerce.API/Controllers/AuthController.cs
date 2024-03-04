@@ -35,7 +35,7 @@ namespace ECommerce.API.Controllers
 
             // Try login
 
-            var loggedInUser = await _authService.Login(new User(user.UserName, "", user.Password, null));
+            var loggedInUser = await _authService.Login(new User(user.UserName, "", user.Password,""));
 
             // Return responses
 
@@ -46,49 +46,51 @@ namespace ECommerce.API.Controllers
 
             return BadRequest(new { message = "User login unsuccessful" });
         }
+[AllowAnonymous]
+[HttpPost]
+public async Task<IActionResult> Register([FromBody] RegisterUser user)
+{
+    // Error checks
+    if (String.IsNullOrEmpty(user.Name))
+    {
+        return BadRequest(new { message = "Name needs to be entered" });
+    }
+    else if (String.IsNullOrEmpty(user.UserName))
+    {
+        return BadRequest(new { message = "User name needs to be entered" });
+    }
+    else if (String.IsNullOrEmpty(user.Password))
+    {
+        return BadRequest(new { message = "Password needs to be entered" });
+    }
+    else if (String.IsNullOrEmpty(user.Email))
+    {
+        return BadRequest(new { message = "Email needs to be entered" });
+    }
 
-        [AllowAnonymous]
-        [HttpPost]
-        public async Task<IActionResult> Register([FromBody] RegisterUser user)
-        {
-            // Error checks
+    // Try registration
+    var registeredUser = await _authService.Register(new User
+    {
+        UserName = user.UserName,
+        Name = user.Name,
+        Password = user.Password,
+        Email = user.Email,
+        Address = user.Address,
+        Mobile = user.Mobile,
+        Roles = user.Roles,
+        Id = user.Id,
+        CreatedAt = user.CreatedAt,
+        ModifiedAt = user.ModifiedAt
+    });
 
-            if (String.IsNullOrEmpty(user.Name))
-            {
-                return BadRequest(new { message = "Name needs to be entered" });
-            }
-            else if (String.IsNullOrEmpty(user.UserName))
-            {
-                return BadRequest(new { message = "User name needs to be entered" });
-            }
-            else if (String.IsNullOrEmpty(user.Password))
-            {
-                return BadRequest(new { message = "Password needs to be entered" });
-            }
-            else if (String.IsNullOrEmpty(user.Email))
-            {
-                return BadRequest(new { message = "Email needs to be entered" });
-            }
+    // Return responses
+    if (registeredUser != null)
+    {
+        return Ok(registeredUser);
+    }
 
-            // Try registration
-
-            var registeredUser = await _authService.Register(new User(user.UserName, user.Name, user.Password, user.Roles)
-            {
-                Email = user.Email,
-                Address = user.Address,
-                Mobile = user.Mobile,
-                Roles = user.Roles
-            }); ;
-
-            // Return responses
-
-            if (registeredUser != null)
-            {
-                return Ok(registeredUser);
-            }
-
-            return BadRequest(new { message = "User registration unsuccessful" });
-        }
+    return BadRequest(new { message = "User registration unsuccessful", error = "Failed to insert the user into the database" });
+}
 
         // GET: auth/test
         [Authorize(Roles = "User")]

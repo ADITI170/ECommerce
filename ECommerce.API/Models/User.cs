@@ -16,7 +16,8 @@ namespace ECommerce.API.Models
         // RBAC-related properties
         public string UserName { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public List<string>? Roles { get; set; }
+        public string Roles { get; set; } = string.Empty;
+
         public bool IsActive { get; set; }
         public string? Token { get; set; }
 
@@ -25,7 +26,7 @@ namespace ECommerce.API.Models
         {
         }
 
-        public User(string userName, string name, string password, List<string>? roles)
+        public User(string userName, string name, string password, string roles)
         {
             UserName = userName;
             Name = name;
@@ -42,14 +43,15 @@ namespace ECommerce.API.Models
 
     public class RegisterUser
     {
-        public string Email { get; set; } = "";
-        public string Address { get; set; } = "";
-        public string Mobile { get; set; } = "";
-        public string Password { get; set; } = "";
-        public List<string>? Roles { get; set; }
-
-        // RBAC-related properties
-        public string UserName { get; set; } = "";
-        public string Name { get; set; } = "";
+        public string Name { get; set; }
+        public string UserName { get; set; }
+        public string Email { get; set; }
+        public string Address { get; set; }
+        public string Mobile { get; set; }
+        public string Password { get; set; }
+        public string Roles { get; set; }
+        public int Id { get; set; }
+        public string CreatedAt { get; set; }
+        public string ModifiedAt { get; set; }
     }
 }

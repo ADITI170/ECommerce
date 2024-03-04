@@ -40,7 +40,7 @@ namespace ECommerce.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("RegisterUser")]
+        /*[HttpPost("RegisterUser")]
         public IActionResult RegisterUser([FromBody] User user)
         {
             user.CreatedAt = DateTime.Now.ToString(DateFormat);
@@ -61,7 +61,7 @@ namespace ECommerce.API.Controllers
             if (token == "") token = "invalid";
             return Ok(token);
         }
-
+        */
         [HttpPost("InsertReview")]
         public IActionResult InsertReview([FromBody] Review review)
         {
