@@ -150,9 +150,9 @@ namespace ECommerce.API.Controllers
 
 
         [HttpGet("SearchProducts")]
-        public IActionResult SearchProducts(string query)
+        public IActionResult SearchProducts([FromQuery] string q)
         {
-            var result = dataAccess.SearchProducts(query);
+            var result = dataAccess.SearchProducts(q);
             return Ok(result);
         }
 

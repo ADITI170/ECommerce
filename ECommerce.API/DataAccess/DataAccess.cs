@@ -518,7 +518,7 @@ namespace ECommerce.API.DataAccess
                     Connection = connection
                 };
 
-                string query = "SELECT * FROM Users WHERE UserName=" + uname + ";";
+                string query = "SELECT * FROM Users WHERE UserName='" + uname + "';";
                 command.CommandText = query;
 
                 connection.Open();
