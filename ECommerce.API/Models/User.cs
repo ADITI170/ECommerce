@@ -16,7 +16,7 @@ namespace ECommerce.API.Models
         // RBAC-related properties
         public string UserName { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public string Roles { get; set; } = string.Empty;
+        public string? Roles { get; set; } = string.Empty;
 
         public bool IsActive { get; set; }
         public string? Token { get; set; }

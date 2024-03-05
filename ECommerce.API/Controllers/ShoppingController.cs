@@ -40,7 +40,7 @@ namespace ECommerce.API.Controllers
             return Ok(result);
         }
 
-        /*[HttpPost("RegisterUser")]
+        [HttpPost("RegisterUser")]
         public IActionResult RegisterUser([FromBody] User user)
         {
             user.CreatedAt = DateTime.Now.ToString(DateFormat);
@@ -61,7 +61,7 @@ namespace ECommerce.API.Controllers
             if (token == "") token = "invalid";
             return Ok(token);
         }
-        */
+        
         [HttpPost("InsertReview")]
         public IActionResult InsertReview([FromBody] Review review)
         {
@@ -147,8 +147,20 @@ namespace ECommerce.API.Controllers
             var id = dataAccess.InsertOrder(order);
             return Ok(id.ToString());
         }
-
-
+        [HttpDelete("DeleteUser/{id}")]
+        public IActionResult DeleteUser(int id)
+        {
+            var result = dataAccess.DeleteUser(id);
+            if (result)
+            {
+                return Ok("{\"message\": \"User deleted\"}");
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+        
         [HttpGet("SearchProducts")]
         public IActionResult SearchProducts([FromQuery] string q)
         {

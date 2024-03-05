@@ -504,7 +504,7 @@ namespace ECommerce.API.DataAccess
                     user.Password = (string)reader["Password"];
                     user.CreatedAt = (string)reader["CreatedAt"];
                     user.ModifiedAt = (string)reader["ModifiedAt"];
-                    user.Roles = (string)reader["Role"];
+                    //user.Roles = (string)reader["Role"];
                 }
             }
             return user;
@@ -540,7 +540,26 @@ namespace ECommerce.API.DataAccess
             }
             return user;
         }
+        public bool DeleteUser(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(dbconnection))
+            {
+                SqlCommand command = new SqlCommand()
+                {
+                    Connection = connection
+                };
 
+                connection.Open();
+
+                string updateQuery = "UPDATE Users SET IsDeleted = 1 WHERE UserId = @id;";
+                command.CommandText = updateQuery;
+                command.Parameters.AddWithValue("@id", id);
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                return rowsAffected > 0; // Return true if at least one row was affected (user soft deleted)
+            }
+        }
         public bool InsertCartItem(int userId, int productId)
         {
             using (SqlConnection connection = new(dbconnection))
@@ -712,6 +731,27 @@ namespace ECommerce.API.DataAccess
             }
             return true;
         }
+
+        public bool DeleteUser(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(dbconnection))
+            {
+                SqlCommand command = new SqlCommand()
+                {
+                    Connection = connection
+                };
+
+                connection.Open();
+
+                string updateQuery = "UPDATE Users SET IsDeleted = 1 WHERE UserId = @id;";
+                command.CommandText = updateQuery;
+                command.Parameters.AddWithValue("@id", id);
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                return rowsAffected > 0; // Return true if at least one row was affected (user soft deleted)
+            }
+        }
         public string IsUserPresent(string email, string password)
         {
             User user = new();
@@ -747,7 +787,7 @@ namespace ECommerce.API.DataAccess
                     user.Password = (string)reader["Password"];
                     user.CreatedAt = (string)reader["CreatedAt"];
                     user.ModifiedAt = (string)reader["ModifiedAt"];
-                    user.Roles = (string)reader["Role"];
+                    user.Roles = reader["Role"] != DBNull.Value ? (string)reader["Role"] : string.Empty;
                 }
 
                 string key = "MNU66iBl3T5rh6H52i69";

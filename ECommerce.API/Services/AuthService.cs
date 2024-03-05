@@ -6,7 +6,10 @@ using System.Security.Claims;
 using System.Text;
 using ECommerce.API.DataAccess;
 using Microsoft.VisualBasic;
-
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 namespace ECommerce.API.Services
 {
     public interface IAuthService
@@ -70,7 +73,7 @@ namespace ECommerce.API.Services
                 IssuedAt = DateTime.UtcNow,
                 Issuer = _configuration["JWT:Issuer"],
                 Audience = _configuration["JWT:Audience"],
-                Expires = DateTime.UtcNow.AddMinutes(30),
+                Expires = DateTime.UtcNow.AddMinutes(100),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };
 

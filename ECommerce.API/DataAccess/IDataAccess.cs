@@ -29,6 +29,9 @@ namespace ECommerce.API.DataAccess
 
         List<Product> GetProductsByCategory(string category);
 
+        List<User> GetAllUsers();
+
+        bool DeleteUser(int id); // Method for deleting users
     }
 
 
