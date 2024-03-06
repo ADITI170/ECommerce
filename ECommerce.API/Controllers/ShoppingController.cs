@@ -1,7 +1,9 @@
-﻿using ECommerce.API.DataAccess;
+using ECommerce.API.DataAccess;
 using ECommerce.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using ECommerce.API.Models;
 
 namespace ECommerce.API.Controllers
 {
@@ -57,11 +59,12 @@ namespace ECommerce.API.Controllers
         [HttpPost("LoginUser")]
         public IActionResult LoginUser([FromBody] User user)
         {
-            var token = dataAccess.IsUserPresent(user.Email, user.Password);
-            if (token == "") token = "invalid";
-            return Ok(token);
+            TokenResponse response = dataAccess.IsUserPresent(user.Email, user.Password);
+
+            response.Token = string.IsNullOrEmpty(response.Token) ? "invalid" : response.Token;
+
+            return Ok(response);
         }
-        
         [HttpPost("InsertReview")]
         public IActionResult InsertReview([FromBody] Review review)
         {
@@ -167,7 +170,12 @@ namespace ECommerce.API.Controllers
             var result = dataAccess.SearchProducts(q);
             return Ok(result);
         }
-
+        [HttpGet("GetAllUsers")]
+        public IActionResult GetAllUsers()
+        {
+            var result = dataAccess.GetAllUsers();
+            return Ok(result);
+        }
         [HttpGet("GetProductsByCategory")]
         public IActionResult GetProductsByCategory(string category)
         {
