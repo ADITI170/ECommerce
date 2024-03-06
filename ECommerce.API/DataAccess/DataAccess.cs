@@ -1,4 +1,4 @@
-﻿using ECommerce.API.Models;
+using ECommerce.API.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Data.Common;
 using System.Data.SqlClient;

@@ -1,4 +1,4 @@
-﻿using ECommerce.API.DataAccess;
+using ECommerce.API.DataAccess;
 using ECommerce.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
