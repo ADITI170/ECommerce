@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
+using ECommerce.API.Models;
 
 namespace ECommerce.API.DataAccess
 {
@@ -74,7 +75,49 @@ namespace ECommerce.API.DataAccess
 
             }
         }
+        public List<User> GetAllUsers()
+        {
+            List<User> users = new List<User>();
 
+            using (SqlConnection connection = new SqlConnection(dbconnection))
+            {
+                SqlCommand command = new SqlCommand()
+                {
+                    Connection = connection
+                };
+
+                connection.Open();
+
+                string query = "SELECT * FROM Users WHERE IsDeleted = 0;";
+                command.CommandText = query;
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    User user = new User()
+                    {
+                        Id = Convert.ToInt32(reader["UserId"]),
+                        Email = reader["Email"].ToString(),
+                        Address = reader["Address"].ToString(),
+                        Mobile = reader["Mobile"].ToString(),
+                        Password = reader["Password"].ToString(),
+                        CreatedAt = reader["CreatedAt"].ToString(),
+                        ModifiedAt = reader["ModifiedAt"].ToString(),
+                        UserName = reader["UserName"].ToString(),
+                        Name = reader["Name"].ToString(),
+                        Roles = reader["Role"].ToString(),
+                        IsActive = !Convert.ToBoolean(reader["IsDeleted"]) // Assuming IsDeleted represents the user's active status
+                    };
+
+                    users.Add(user);
+                }
+
+                reader.Close();
+            }
+
+            return users;
+        }
         public Cart GetActiveCartOfUser(int userid)
         {
             var cart = new Cart();
@@ -477,7 +520,35 @@ namespace ECommerce.API.DataAccess
             }
             return products;
         }
+      /* public int AddProduct(Product product)
+        {
+            using (SqlConnection connection = new SqlConnection(dbconnection))
+            {
+                SqlCommand command = new SqlCommand()
+                {
+                    Connection = connection
+                };
 
+                connection.Open();
+
+                string insertQuery = "INSERT INTO Products (Title, Description, CategoryId, OfferId, Price, Quantity, ImageName) " +
+                    "VALUES (@Title, @Description, @CategoryId, @OfferId, @Price, @Quantity, @ImageName); " +
+                    "SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+                command.CommandText = insertQuery;
+                command.Parameters.AddWithValue("@Title", product.Title);
+                command.Parameters.AddWithValue("@Description", product.Description);
+                command.Parameters.AddWithValue("@CategoryId", product.CategoryId);
+                command.Parameters.AddWithValue("@OfferId", product.OfferId);
+                command.Parameters.AddWithValue("@Price", product.Price);
+                command.Parameters.AddWithValue("@Quantity", product.Quantity);
+                command.Parameters.AddWithValue("@ImageName", product.ImageName);
+
+                int productId = (int)command.ExecuteScalar();
+
+                return productId;
+            }
+        }*/
         public User GetUser(int id)
         {
             var user = new User();
@@ -504,7 +575,7 @@ namespace ECommerce.API.DataAccess
                     user.Password = (string)reader["Password"];
                     user.CreatedAt = (string)reader["CreatedAt"];
                     user.ModifiedAt = (string)reader["ModifiedAt"];
-                    user.Roles = (string)reader["Role"];
+                    //user.Roles = (string)reader["Role"];
                 }
             }
             return user;
@@ -540,7 +611,26 @@ namespace ECommerce.API.DataAccess
             }
             return user;
         }
+        public bool DeleteUser(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(dbconnection))
+            {
+                SqlCommand command = new SqlCommand()
+                {
+                    Connection = connection
+                };
 
+                connection.Open();
+
+                string updateQuery = "UPDATE Users SET IsDeleted = 1 WHERE UserId = @id;";
+                command.CommandText = updateQuery;
+                command.Parameters.AddWithValue("@id", id);
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                return rowsAffected > 0; // Return true if at least one row was affected (user soft deleted)
+            }
+        }
         public bool InsertCartItem(int userId, int productId)
         {
             using (SqlConnection connection = new(dbconnection))
@@ -712,7 +802,9 @@ namespace ECommerce.API.DataAccess
             }
             return true;
         }
-        public string IsUserPresent(string email, string password)
+
+       
+        public TokenResponse IsUserPresent(string email, string password)
         {
             User user = new();
             using (SqlConnection connection = new(dbconnection))
@@ -726,11 +818,11 @@ namespace ECommerce.API.DataAccess
                 string query = "SELECT COUNT(*) FROM Users WHERE Email='" + email + "' AND Password='" + password + "';";
                 command.CommandText = query;
                 int count = (int)command.ExecuteScalar();
-                if (count == 0)
+               /* if (count == 0)
                 {
                     connection.Close();
                     return "";
-                }
+                }*/
 
                 query = "SELECT * FROM Users WHERE Email='" + email + "' AND Password='" + password + "';";
                 command.CommandText = query;
@@ -748,6 +840,7 @@ namespace ECommerce.API.DataAccess
                     user.CreatedAt = (string)reader["CreatedAt"];
                     user.ModifiedAt = (string)reader["ModifiedAt"];
                     user.Roles = (string)reader["Role"];
+                 //   user.Roles = reader["Role"] != DBNull.Value ? (string)reader["Role"] : string.Empty;
                 }
 
                 string key = "MNU66iBl3T5rh6H52i69";
@@ -769,15 +862,23 @@ namespace ECommerce.API.DataAccess
 
                 };
 
-                var jwtToken = new JwtSecurityToken(
+                var token = new JwtSecurityToken(
                     issuer: "localhost",
                     audience: "localhost",
                     claims: claims,
                     expires: DateTime.Now.AddMinutes(Int32.Parse(duration)),
                     signingCredentials: credentials);
 
-                return new JwtSecurityTokenHandler().WriteToken(jwtToken);
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+                return new TokenResponse
+                {
+                    Token = tokenString,
+                    Role = user.Roles
+                };
             }
         }
+
+       
     }
 }

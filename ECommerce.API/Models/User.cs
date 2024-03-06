@@ -12,11 +12,13 @@ namespace ECommerce.API.Models
         public string Password { get; set; } = string.Empty;
         public string CreatedAt { get; set; } = string.Empty;
         public string ModifiedAt { get; set; } = string.Empty;
+         
 
+    
         // RBAC-related properties
         public string UserName { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public string Roles { get; set; } = string.Empty;
+        public string? Roles { get; set; } = string.Empty;
 
         public bool IsActive { get; set; }
         public string? Token { get; set; }
@@ -41,6 +43,7 @@ namespace ECommerce.API.Models
         public string Password { get; set; } = "";
     }
 
+
     public class RegisterUser
     {
         public string Name { get; set; }
@@ -53,5 +56,16 @@ namespace ECommerce.API.Models
         public int Id { get; set; }
         public string CreatedAt { get; set; }
         public string ModifiedAt { get; set; }
+    }
+    public class LoginResponse
+    {
+        public string Token { get; set; }
+        public string Role { get; set; }
+    }
+
+    public class LoginResult
+    {
+        public string Token { get; set; }
+        public string Roles { get; set; }
     }
 }

@@ -2,6 +2,8 @@
 using ECommerce.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using ECommerce.API.Models;
 
 namespace ECommerce.API.Controllers
 {
@@ -40,7 +42,7 @@ namespace ECommerce.API.Controllers
             return Ok(result);
         }
 
-        /*[HttpPost("RegisterUser")]
+        [HttpPost("RegisterUser")]
         public IActionResult RegisterUser([FromBody] User user)
         {
             user.CreatedAt = DateTime.Now.ToString(DateFormat);
@@ -57,11 +59,12 @@ namespace ECommerce.API.Controllers
         [HttpPost("LoginUser")]
         public IActionResult LoginUser([FromBody] User user)
         {
-            var token = dataAccess.IsUserPresent(user.Email, user.Password);
-            if (token == "") token = "invalid";
-            return Ok(token);
+            TokenResponse response = dataAccess.IsUserPresent(user.Email, user.Password);
+
+            response.Token = string.IsNullOrEmpty(response.Token) ? "invalid" : response.Token;
+
+            return Ok(response);
         }
-        */
         [HttpPost("InsertReview")]
         public IActionResult InsertReview([FromBody] Review review)
         {
@@ -147,15 +150,32 @@ namespace ECommerce.API.Controllers
             var id = dataAccess.InsertOrder(order);
             return Ok(id.ToString());
         }
-
-
+        [HttpDelete("DeleteUser/{id}")]
+        public IActionResult DeleteUser(int id)
+        {
+            var result = dataAccess.DeleteUser(id);
+            if (result)
+            {
+                return Ok("{\"message\": \"User deleted\"}");
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+        
         [HttpGet("SearchProducts")]
         public IActionResult SearchProducts([FromQuery] string q)
         {
             var result = dataAccess.SearchProducts(q);
             return Ok(result);
         }
-
+        [HttpGet("GetAllUsers")]
+        public IActionResult GetAllUsers()
+        {
+            var result = dataAccess.GetAllUsers();
+            return Ok(result);
+        }
         [HttpGet("GetProductsByCategory")]
         public IActionResult GetProductsByCategory(string category)
         {
