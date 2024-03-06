@@ -260,7 +260,7 @@ namespace ECommerce.API.DataAccess
                         Id = (int)reader["ProductId"],
                         Title = (string)reader["Title"],
                         Description = (string)reader["Description"],
-                        // Add other properties of the product
+                      
                     };
 
                     products.Add(product);
@@ -390,7 +390,82 @@ namespace ECommerce.API.DataAccess
             }
             return result;
         }
+        public bool DeleteProduct(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(dbconnection))
+            {
+                SqlCommand command = new SqlCommand()
+                {
+                    Connection = connection
+                };
 
+                connection.Open();
+
+                string query = "DELETE FROM Products WHERE ProductId = @id;";
+                command.CommandText = query;
+                command.Parameters.AddWithValue("@id", id);
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                return rowsAffected > 0; // Return true if at least one row was affected (product deleted)
+            }
+        }
+        public bool InsertProduct(Product product)
+        {
+            using (SqlConnection connection = new SqlConnection(dbconnection))
+            {
+                SqlCommand command = new SqlCommand()
+                {
+                    Connection = connection
+                };
+
+                connection.Open();
+
+                string query = "INSERT INTO Products (Title, Description, Price, Quantity, ImageName, CategoryId, OfferId) " +
+                               "VALUES (@Title, @Description, @Price, @Quantity, @ImageName, @CategoryId, @OfferId);";
+
+                command.CommandText = query;
+                command.Parameters.AddWithValue("@Title", product.Title);
+                command.Parameters.AddWithValue("@Description", product.Description);
+                command.Parameters.AddWithValue("@Price", product.Price);
+                command.Parameters.AddWithValue("@Quantity", product.Quantity);
+                command.Parameters.AddWithValue("@ImageName", product.ImageName);
+                command.Parameters.AddWithValue("@CategoryId", product.ProductCategory.Id);
+                command.Parameters.AddWithValue("@OfferId", product.Offer.Id);
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                return rowsAffected > 0; // Return true if at least one row was affected (product inserted)
+            }
+        }
+        public bool UpdateProduct(Product product)
+        {
+            using (SqlConnection connection = new SqlConnection(dbconnection))
+            {
+                SqlCommand command = new SqlCommand()
+                {
+                    Connection = connection
+                };
+
+                connection.Open();
+
+                string query = "UPDATE Products SET Title = @Title, Description = @Description, " +
+                               "Price = @Price, Quantity = @Quantity, ImageName = @ImageName " +
+                               "WHERE ProductId = @Id;";
+
+                command.CommandText = query;
+                command.Parameters.AddWithValue("@Title", product.Title);
+                command.Parameters.AddWithValue("@Description", product.Description);
+                command.Parameters.AddWithValue("@Price", product.Price);
+                command.Parameters.AddWithValue("@Quantity", product.Quantity);
+                command.Parameters.AddWithValue("@ImageName", product.ImageName);
+                command.Parameters.AddWithValue("@Id", product.Id);
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                return rowsAffected > 0; // Return true if at least one row was affected (product updated)
+            }
+        }
         public Product GetProduct(int id)
         {
             var product = new Product();
@@ -423,6 +498,49 @@ namespace ECommerce.API.DataAccess
                 }
             }
             return product;
+        }
+
+        public List<Product> GetAllProducts()
+        {
+            List<Product> products = new List<Product>();
+            using (SqlConnection connection = new SqlConnection(dbconnection))
+            {
+                SqlCommand command = new SqlCommand()
+                {
+                    Connection = connection
+                };
+
+                connection.Open();
+
+                string query = "SELECT * FROM Products;";
+                command.CommandText = query;
+
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Product product = new Product()
+                    {
+                        Id = (int)reader["ProductId"],
+                        Title = (string)reader["Title"],
+                        Description = (string)reader["Description"],
+                        Price = (double)reader["Price"],
+                        Quantity = (int)reader["Quantity"],
+                        ImageName = (string)reader["ImageName"]
+                    };
+
+                    var categoryId = (int)reader["CategoryId"];
+                    product.ProductCategory = GetProductCategory(categoryId);
+
+                    var offerId = (int)reader["OfferId"];
+                    product.Offer = GetOffer(offerId);
+
+                    products.Add(product);
+                }
+
+                reader.Close();
+            }
+
+            return products;
         }
 
         public List<ProductCategory> GetProductCategories()

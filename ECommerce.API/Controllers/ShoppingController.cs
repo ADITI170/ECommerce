@@ -32,8 +32,14 @@ namespace ECommerce.API.Controllers
             var result = dataAccess.GetProducts(category, subcategory, count);
             return Ok(result);
         }
-        
 
+        [HttpGet("GetAllProducts")]
+        public IActionResult GetAllProducts()
+        {
+            var result = dataAccess.GetAllProducts();
+            return Ok(result);
+        }
+        
 
         [HttpGet("GetProduct/{id}")]
         public IActionResult GetProduct(int id)
@@ -183,6 +189,40 @@ namespace ECommerce.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("AddProduct")]
+        public IActionResult AddProduct([FromBody] Product product)
+        {
+            var result = dataAccess.InsertProduct(product);
+            return Ok(result ? "Product added" : "Failed to add product");
+        }
+
+        [HttpPut("UpdateProduct/{id}")]
+        public IActionResult UpdateProduct(int id, [FromBody] Product product)
+        {
+            product.Id = id;
+            var result = dataAccess.UpdateProduct(product);
+            if (result)
+            {
+                return Ok(new { message = "Product updated" }); // Return a JSON response with a message property
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+        [HttpDelete("DeleteProduct/{id}")]
+        public IActionResult DeleteProduct(int id)
+        {
+            var result = dataAccess.DeleteProduct(id);
+            if (result)
+            {
+                return Ok("{\"message\": \"Product deleted\"}");
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
 
     }
 }

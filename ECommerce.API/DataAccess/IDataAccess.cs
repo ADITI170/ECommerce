@@ -30,6 +30,10 @@ namespace ECommerce.API.DataAccess
         List<Product> GetProductsByCategory(string category);
 
         List<User> GetAllUsers();
+        List<Product> GetAllProducts();
+        bool DeleteProduct(int id);
+        bool InsertProduct(Product product);
+        bool UpdateProduct(Product product);
 
         bool DeleteUser(int id); // Method for deleting users
     }
