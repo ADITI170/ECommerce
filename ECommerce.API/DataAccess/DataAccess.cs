@@ -177,19 +177,55 @@ namespace ECommerce.API.DataAccess
 
                 connection.Open();
 
-                string searchQuery = "SELECT * FROM Products WHERE Title LIKE @query OR Description LIKE @query;";
+                string searchQuery = @"
+            SELECT 
+                P.ProductId,
+                P.Title,
+                P.Description,
+                P.Price,
+                P.Quantity,
+                P.ImageName,
+                P.OfferId,
+                P.CategoryId,
+                PC.CategoryId,
+                PC.Category,
+                PC.SubCategory,
+                O.OfferId,
+                O.Title,
+                O.Discount
+            FROM Products P
+            INNER JOIN ProductCategories PC ON P.CategoryId = PC.CategoryId
+            LEFT JOIN Offers O ON P.OfferId = O.OfferId
+            WHERE P.Title LIKE @query OR P.Description LIKE @query;";
+
                 command.CommandText = searchQuery;
                 command.Parameters.AddWithValue("@query", "%" + query + "%");
 
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
+                    ProductCategory productCategory = new ProductCategory()
+                    {
+                        Category = (string)reader["Category"],
+                        SubCategory = (string)reader["SubCategory"]
+                    };
+
+                    Offer offer = new Offer()
+                    {
+                        Id = (int)reader["OfferId"],
+                        Title = (string)reader["Title"],
+                        Discount = (int)reader["Discount"]
+                    };
                     Product product = new Product()
                     {
                         Id = (int)reader["ProductId"],
                         Title = (string)reader["Title"],
                         Description = (string)reader["Description"],
-                        // Add other properties of the product
+                        ProductCategory = productCategory,
+                        Price = (double)reader["Price"],
+                        Quantity = (int)reader["Quantity"],
+                        ImageName = (string)reader["ImageName"],
+                        Offer = offer
                     };
 
                     products.Add(product);
@@ -520,35 +556,35 @@ namespace ECommerce.API.DataAccess
             }
             return products;
         }
-      /* public int AddProduct(Product product)
-        {
-            using (SqlConnection connection = new SqlConnection(dbconnection))
-            {
-                SqlCommand command = new SqlCommand()
-                {
-                    Connection = connection
-                };
+        /* public int AddProduct(Product product)
+          {
+              using (SqlConnection connection = new SqlConnection(dbconnection))
+              {
+                  SqlCommand command = new SqlCommand()
+                  {
+                      Connection = connection
+                  };
 
-                connection.Open();
+                  connection.Open();
 
-                string insertQuery = "INSERT INTO Products (Title, Description, CategoryId, OfferId, Price, Quantity, ImageName) " +
-                    "VALUES (@Title, @Description, @CategoryId, @OfferId, @Price, @Quantity, @ImageName); " +
-                    "SELECT CAST(SCOPE_IDENTITY() AS INT);";
+                  string insertQuery = "INSERT INTO Products (Title, Description, CategoryId, OfferId, Price, Quantity, ImageName) " +
+                      "VALUES (@Title, @Description, @CategoryId, @OfferId, @Price, @Quantity, @ImageName); " +
+                      "SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
-                command.CommandText = insertQuery;
-                command.Parameters.AddWithValue("@Title", product.Title);
-                command.Parameters.AddWithValue("@Description", product.Description);
-                command.Parameters.AddWithValue("@CategoryId", product.CategoryId);
-                command.Parameters.AddWithValue("@OfferId", product.OfferId);
-                command.Parameters.AddWithValue("@Price", product.Price);
-                command.Parameters.AddWithValue("@Quantity", product.Quantity);
-                command.Parameters.AddWithValue("@ImageName", product.ImageName);
+                  command.CommandText = insertQuery;
+                  command.Parameters.AddWithValue("@Title", product.Title);
+                  command.Parameters.AddWithValue("@Description", product.Description);
+                  command.Parameters.AddWithValue("@CategoryId", product.CategoryId);
+                  command.Parameters.AddWithValue("@OfferId", product.OfferId);
+                  command.Parameters.AddWithValue("@Price", product.Price);
+                  command.Parameters.AddWithValue("@Quantity", product.Quantity);
+                  command.Parameters.AddWithValue("@ImageName", product.ImageName);
 
-                int productId = (int)command.ExecuteScalar();
+                  int productId = (int)command.ExecuteScalar();
 
-                return productId;
-            }
-        }*/
+                  return productId;
+              }
+          }*/
         public User GetUser(int id)
         {
             var user = new User();
@@ -775,7 +811,7 @@ namespace ECommerce.API.DataAccess
                 string query = "SELECT COUNT(*) FROM Users WHERE Email='" + user.Email + "';";
                 Console.WriteLine("db_on-data");
                 command.CommandText = query;
-               // command.Parameters.AddWithValue("@em", user.Email);
+                // command.Parameters.AddWithValue("@em", user.Email);
                 int count = (int)command.ExecuteScalar();
                 if (count > 0)
                 {
@@ -803,7 +839,7 @@ namespace ECommerce.API.DataAccess
             return true;
         }
 
-       
+
         public TokenResponse IsUserPresent(string email, string password)
         {
             User user = new();
@@ -818,11 +854,11 @@ namespace ECommerce.API.DataAccess
                 string query = "SELECT COUNT(*) FROM Users WHERE Email='" + email + "' AND Password='" + password + "';";
                 command.CommandText = query;
                 int count = (int)command.ExecuteScalar();
-               /* if (count == 0)
-                {
-                    connection.Close();
-                    return "";
-                }*/
+                /* if (count == 0)
+                 {
+                     connection.Close();
+                     return "";
+                 }*/
 
                 query = "SELECT * FROM Users WHERE Email='" + email + "' AND Password='" + password + "';";
                 command.CommandText = query;
@@ -840,7 +876,7 @@ namespace ECommerce.API.DataAccess
                     user.CreatedAt = (string)reader["CreatedAt"];
                     user.ModifiedAt = (string)reader["ModifiedAt"];
                     user.Roles = (string)reader["Role"];
-                 //   user.Roles = reader["Role"] != DBNull.Value ? (string)reader["Role"] : string.Empty;
+                    //   user.Roles = reader["Role"] != DBNull.Value ? (string)reader["Role"] : string.Empty;
                 }
 
                 string key = "MNU66iBl3T5rh6H52i69";
@@ -879,6 +915,6 @@ namespace ECommerce.API.DataAccess
             }
         }
 
-       
+
     }
 }
