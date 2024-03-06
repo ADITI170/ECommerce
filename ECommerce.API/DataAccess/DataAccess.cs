@@ -44,7 +44,7 @@ namespace ECommerce.API.DataAccess
                 }
 
                 // Delete the product from the current user's cart
-                query = "DELETE FROM CartItems WHERE CartId IN (SELECT CartId FROM Carts WHERE UserId=@userId AND Ordered='false') AND ProductId=@productId;";
+                query = "DELETE TOP(1) FROM CartItems WHERE CartId IN (SELECT CartId FROM Carts WHERE UserId=@userId AND Ordered='false') AND ProductId=@productId;";
                 command.CommandText = query;
                 command.Parameters.AddWithValue("@productId", productId);
                 int rowsAffected = command.ExecuteNonQuery();
