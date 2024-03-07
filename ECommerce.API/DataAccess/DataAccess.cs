@@ -967,16 +967,16 @@ namespace ECommerce.API.DataAccess
                 {
                     Connection = connection
                 };
-
+                Console.WriteLine(password);
                 connection.Open();
                 string query = "SELECT COUNT(*) FROM Users WHERE Email='" + email + "' AND Password='" + password + "';";
                 command.CommandText = query;
                 int count = (int)command.ExecuteScalar();
-                /* if (count == 0)
-                 {
-                     connection.Close();
-                     return "";
-                 }*/
+                if (count == 0)
+                {
+                    connection.Close();
+                    return null;
+                }
 
                 query = "SELECT * FROM Users WHERE Email='" + email + "' AND Password='" + password + "';";
                 command.CommandText = query;

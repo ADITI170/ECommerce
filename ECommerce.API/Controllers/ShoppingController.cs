@@ -67,7 +67,7 @@ namespace ECommerce.API.Controllers
         {
             TokenResponse response = dataAccess.IsUserPresent(user.Email, user.Password);
 
-            response.Token = string.IsNullOrEmpty(response.Token) ? "invalid" : response.Token;
+            //response = string.IsNullOrEmpty(response) ? "invalid" : response;
 
             return Ok(response);
         }
