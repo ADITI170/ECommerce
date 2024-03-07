@@ -57,7 +57,7 @@ namespace ECommerce.API.Controllers
             var result = dataAccess.InsertUser(user);
 
             string? message;
-            if (result) message = "inserted";
+            if (result) message = "Successfully Registered";
             else message = "email not available";
             return Ok(message);
         }
